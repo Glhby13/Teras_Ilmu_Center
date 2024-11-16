@@ -59,6 +59,10 @@
     .swal2-success-fix {
         background-color: unset !important;
     }
+
+    html {
+        scroll-behavior: smooth;
+    }
 </style>
 
 @if(session('success'))
@@ -211,10 +215,46 @@
 
 
             @foreach($question as $info)
-            <div class="card" style="margin-bottom: 10px!important;">
+            <div class="card" style="margin-bottom: 10px!important;" id="question-{{ $info->id_question }}">
                 @include('home.question')
             </div>
             @endforeach
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Ambil query parameter dari URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const focusId = urlParams.get('focus');
+
+                    // Cek apakah parameter 'focus' ada
+                    if (focusId) {
+                        // Cari elemen berdasarkan ID
+                        const element = document.getElementById(`question-${focusId}`);
+
+                        if (element) {
+                            // Scroll ke elemen dengan animasi halus
+                            element.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+
+                            // Berikan efek sorotan untuk menandai elemen dengan box shadow
+                            element.style.transition = 'box-shadow 0.5s';
+                            element.style.boxShadow = '0 0 10px 5px rgba(66, 153, 225, 0.7)'; // Warna shadow sementara
+
+                            // Kembalikan shadow ke semula setelah 2 detik
+                            setTimeout(() => {
+                                element.style.boxShadow = '';
+                            }, 2000);
+                        }
+                    }
+                });
+            </script>
+
+
+
+
+
         </div>
 
         <div class="col-lg-1 call-to-action" style="height: min-content;">

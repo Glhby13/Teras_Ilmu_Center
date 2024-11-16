@@ -478,7 +478,7 @@
                     </div>
 
                     <!-- Report Modal -->
-                    <div class="modal fade" id="reportModal" tabindex="-1" role="dialog"
+                    <!-- <div class="modal fade" id="reportModal" tabindex="-1" role="dialog"
                         aria-labelledby="reportModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content" style="width: 30%">
@@ -487,9 +487,9 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <!-- Isi modal di sini -->
-                                    <textarea name="" id="" cols="50" rows="3" placeholder="Tuliskan sesuatu..."
+                                <div class="modal-body"> -->
+                    <!-- Isi modal di sini -->
+                    <!-- <textarea name="" id="" cols="50" rows="3" placeholder="Tuliskan sesuatu..."
                                         style="height: 40px"></textarea>
                                     Apakah Anda yakin ingin melaporkan masalah ini?
                                 </div>
@@ -498,7 +498,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Konten yang ditampilkan atau disembunyikan -->

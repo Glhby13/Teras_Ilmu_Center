@@ -83,6 +83,12 @@ class User extends Authenticatable
         return $this->HasMany(Vote::class, 'username', 'username');
     }
 
+    // Relasi dengan tabel vote
+    public function video(): HasMany
+    {
+        return $this->HasMany(Video::class, 'username', 'username');
+    }
+
     public function followers()
     {
         return $this->HasMany(Follow::class, 'follower', 'username');

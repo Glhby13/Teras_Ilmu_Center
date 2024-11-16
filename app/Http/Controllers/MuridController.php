@@ -15,6 +15,7 @@ use App\Models\Question;
 use App\Models\Answer;
 use App\Models\Follow;
 use App\Models\Iklan;
+use App\Models\Video;
 use Carbon\Carbon;
 
 class MuridController extends Controller
@@ -117,6 +118,8 @@ class MuridController extends Controller
         $followers = $user->followings()->count() ?? 0;
         $followings = $user->followers()->count() ?? 0;
 
+        $questions_data = $user->question()->orderBy('created_at', 'desc')->get();
+
         // Kirim data murid ke view
         return view('profile', [
             'user' => $user,
@@ -127,6 +130,7 @@ class MuridController extends Controller
             'answers' => $answers,
             'followers' => $followers,
             'followings' => $followings,
+            'questions_data' => $questions_data,
         ]);
     }
 
@@ -192,12 +196,16 @@ class MuridController extends Controller
         $followers = $user->followings()->count() ?? 0;
         $followings = $user->followers()->count() ?? 0;
 
+        $questions_data = $user->question()->orderBy('created_at', 'desc')->get();
+
+        $video = $user->video()->orderBy('created_at', 'desc')->get();
+
         // Cek apakah data profile ditemukan
         if (!$profile) {
             return redirect()->back()->with('error', 'Data profil tidak ditemukan.');
         }
 
-        //dd($profile);
+        //dd($video);
 
         // Return view dengan data profile
         return view('viewprofile', [
@@ -210,6 +218,8 @@ class MuridController extends Controller
             'answers' => $answers,
             'followers' => $followers,
             'followings' => $followings,
+            'video' => $video,
+            'questions_data' => $questions_data,
         ]);
     }
 

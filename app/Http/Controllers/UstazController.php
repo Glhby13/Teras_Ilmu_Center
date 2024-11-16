@@ -110,12 +110,14 @@ class UstazController extends Controller
             return view('no_internet')->withErrors(['error' => 'Tidak dapat mengakses data kota/kabupaten. Pastikan Anda terhubung ke internet.']);
         }
 
-        // dd($cities);
+        // dd($user);
         // Mengambil jumlah answers, questions, followers, dan followings
         $answers = $user->answer()->count() ?? 0;
         $questions = $user->question()->count() ?? 0;
         $followers = $user->followings()->count() ?? 0;
         $followings = $user->followers()->count() ?? 0;
+
+        $video = $user->video()->orderBy('created_at', 'desc')->get();
 
         // Kirim data ustaz ke view
         return view('profile', [
@@ -127,6 +129,7 @@ class UstazController extends Controller
             'answers' => $answers,
             'followers' => $followers,
             'followings' => $followings,
+            'video' => $video,
         ]);
     }
 
@@ -192,6 +195,8 @@ class UstazController extends Controller
         $followers = $user->followings()->count() ?? 0;
         $followings = $user->followers()->count() ?? 0;
 
+        $video = $user->video()->orderBy('created_at', 'desc')->get();
+
         // Cek apakah data profile ditemukan
         if (!$profile) {
             return redirect()->back()->with('error', 'Data profil tidak ditemukan.');
@@ -210,6 +215,7 @@ class UstazController extends Controller
             'answers' => $answers,
             'followers' => $followers,
             'followings' => $followings,
+            'video' => $video,
         ]);
     }
 

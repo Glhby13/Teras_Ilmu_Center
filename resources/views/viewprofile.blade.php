@@ -240,6 +240,178 @@
                         </div>
                     </div>
                 </div>
+                @if($user->role === 'ustaz')
+                @foreach($video as $videos)
+                @php
+                // Ekstrak VIDEO_ID dari URL
+                $url = $videos->linkVideo;
+                $videoId = null;
+
+                // Cek dan ekstrak ID YouTube dari URL
+                if (preg_match('/youtube\.com\/(?:v=|embed\/|watch\?v=|watch\?.*v=)([^\&\?\/]+)/', $url, $matches)) {
+                $videoId = $matches[1];
+                } elseif (preg_match('/youtu\.be\/([^\?\/]+)/', $url, $matches)) {
+                $videoId = $matches[1];
+                }
+
+                // Tentukan URL thumbnail berdasarkan ID
+                $thumbnailUrl = $videoId ? "https://img.youtube.com/vi/{$videoId}/hqdefault.jpg" : asset('img/baca-quran.jpg');
+                @endphp
+
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-4">
+                        <span>
+                            <img src="{{ $thumbnailUrl }}" />
+                        </span>
+                    </div>
+                    <div class="col-8">
+                        <div class="card-title" style="margin-bottom: 0;">
+                            <h2>{{ $videos->judulVideo }}</h2>
+                        </div>
+
+                        <div class="card-text" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; height: 4.5em; overflow-y: auto;">
+                            <p>{{ $videos->deskripsiVideo }}</p>
+                        </div>
+                        <a href="{{ $videos->linkVideo }}" target="_blank" class="btn btn-outline-primary rounded-0 float-end">Nonton</a>
+                    </div>
+                </div>
+                @endforeach
+                @elseif($user->role === 'murid')
+                @foreach($questions_data as $data_questions)
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-4">
+                        <div class="image-container" style="overflow: hidden; max-width: 100%; max-height: 100px;">
+                            @if ($data_questions->gambar)
+                            <img src="data:image/png;base64,{{ $data_questions->gambar }}" class="img-fluid"
+                                style="width: 100%; height: 100px; object-fit: cover;">
+                            @endif
+                        </div>
+
+                    </div>
+                    <div class="col-8">
+                        <div class="text-secondary" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <a>Kategori: {{ $data_questions->kategori }}</a>
+                            </div>
+
+                            @php
+                            // Ambil waktu pembaruan dari $data_questions
+                            $updatedAt = \Carbon\Carbon::parse($data_questions->updated_at);
+
+                            // Dapatkan waktu sekarang
+                            $now = \Carbon\Carbon::now();
+
+                            // Tentukan apakah waktu pembaruan adalah hari ini atau sebelumnya
+                            $isToday = $updatedAt->isToday();
+                            $isYesterday = $updatedAt->isYesterday();
+
+                            // Format output
+                            $output = '';
+
+                            if ($isToday) {
+                            // Tampilkan dalam format relatif
+                            $output = $updatedAt->diffForHumans();
+                            } elseif ($isYesterday) {
+                            // Tampilkan 'yesterday' untuk pembaruan kemarin
+                            $output = 'yesterday';
+                            } else {
+                            // Tampilkan tanggal jika lebih dari 1 hari
+                            $output = $updatedAt->format('d M Y');
+                            }
+                            @endphp
+
+                            <div>
+                                <a>
+                                    @if ($data_questions->created_at != $data_questions->updated_at)
+                                    (edited) {{ $output }}
+                                    @else
+                                    {{ $output }}
+                                    @endif
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card-text" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; height: 4.5em; overflow-y: auto;">
+                            <p>{{ $data_questions->deskripsi }}</p>
+                        </div>
+
+                        <div>
+                            <div class="float-start">
+                                <a class="text-primary" href="{{ route(auth()->user()->role . '.home') }}?focus={{ $data_questions->id_question }}">
+                                    Lihat Post
+                                </a>
+                            </div>
+
+
+
+                            <div class="float-end">
+                                <svg role="button" data-bs-toggle="dropdown" xmlns="http://www.w3.org/2000/svg"
+                                    class="mt-2 icon icon-tabler icon-tabler-dots" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                </svg>
+                                <div class="dropdown-menu">
+                                    @if (auth()->check() && $data_questions->user->username != auth()->user()->username)
+                                    <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#reportModal{{ $data_questions->id_question }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="me-2 icon icon-tabler icon-tabler-alert-circle" width="24"
+                                            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                                            <path d="M12 8v4"></path>
+                                            <path d="M12 16h.01"></path>
+                                        </svg>
+                                        Report
+                                    </a>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Report Modal -->
+                            <div class="modal fade" id="reportModal{{ $data_questions->id_question }}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form id="reportForm{{ $data_questions->id_question }}" action="{{ route(auth()->user()->role . '.reportQuestion', $data_questions->id_question ) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header">
+                                                <b>Report Post</b>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label" style="color: #000000;">Reason</label>
+                                                    <textarea name="reason" id="reason" class="border rounded-0 form-control summernote" rows="6" placeholder="Write something" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-ghost-secondary btn-pill" data-bs-dismiss="modal" id="ReportcancelButton{{ $data_questions->id_question }}">Cancel</button>
+                                                <button type="submit" class="btn btn-primary btn-pill">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const modalElement = document.getElementById('reportModal{{ $data_questions->id_question }}');
+                                    modalElement.addEventListener('hide.bs.modal', function() {
+                                        // Reset form fields
+                                        document.getElementById('reportForm{{ $data_questions->id_question }}').reset();
+                                    });
+                                });
+                            </script>
+                        </div>
+
+                    </div>
+                </div>
+                @endforeach
+                @endif
             </div>
             <div class="col-2">
 

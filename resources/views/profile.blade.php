@@ -212,6 +212,422 @@
                         </div>
                     </div>
                 </div>
+
+                @if($user->role === 'ustaz')
+                @foreach($video as $videos)
+                @php
+                // Ekstrak VIDEO_ID dari URL
+                $url = $videos->linkVideo;
+                $videoId = null;
+
+                // Cek dan ekstrak ID YouTube dari URL
+                if (preg_match('/youtube\.com\/(?:v=|embed\/|watch\?v=|watch\?.*v=)([^\&\?\/]+)/', $url, $matches)) {
+                $videoId = $matches[1];
+                } elseif (preg_match('/youtu\.be\/([^\?\/]+)/', $url, $matches)) {
+                $videoId = $matches[1];
+                }
+
+                // Tentukan URL thumbnail berdasarkan ID
+                $thumbnailUrl = $videoId ? "https://img.youtube.com/vi/{$videoId}/hqdefault.jpg" : asset('img/baca-quran.jpg');
+                @endphp
+
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-4">
+                        <span>
+                            <img src="{{ $thumbnailUrl }}" />
+                        </span>
+                    </div>
+                    <div class="col-8">
+                        <div class="card-title" style="margin-bottom: 0;">
+                            <div class="float-end d-flex justify-content-end" style="padding-right: 15px;">
+                                <svg role="button" data-bs-toggle="dropdown" xmlns="http://www.w3.org/2000/svg"
+                                    class="mt-2 icon icon-tabler icon-tabler-dots" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round" style="margin-top: 0 !important;">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                </svg>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editVideoModal{{ $videos->id_video }}">
+                                        <svg role="button" xmlns="http://www.w3.org/2000/svg"
+                                            class="icon icon-tabler icon-tabler-edit me-2" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                                            <path d="M16 5l3 3"></path>
+                                        </svg>
+                                        Edit
+                                    </a>
+
+                                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#hapusVideoModal{{ $videos->id_video }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="icon icon-tabler icon-tabler-trash me-2" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M4 7l16 0"></path>
+                                            <path d="M10 11l0 6"></path>
+                                            <path d="M14 11l0 6"></path>
+                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                                        </svg>
+                                        Delete</a>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Edit Video Modal -->
+                            <div class="modal fade" id="editVideoModal{{ $videos->id_video }}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form id="editVideoForm{{ $videos->id_video }}" action="{{ route('ustaz.editvideo', $videos->id_video) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header">
+                                                <b>Edit Video</b>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="editjudulVideo" class="form-label">Judul Video</label>
+                                                    <input type="text" class="form-control" id="editjudulVideo{{ $videos->id_video }}" name="editjudulVideo" value="{{ $videos->judulVideo }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editdeskripsiVideo" class="form-label">Deskripsi</label>
+                                                    <textarea name="editdeskripsiVideo" id="editdeskripsiVideo{{ $videos->id_video }}"
+                                                        class="border rounded-0 form-control summernote" rows="6" placeholder="{{ $videos->deskripsiVideo }}">{{ $videos->deskripsiVideo }}</textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editlinkVideo" class="form-label">Link YouTube Video</label>
+                                                    <input type="text" class="form-control" id="editlinkVideo{{ $videos->id_video }}" name="editlinkVideo" value="{{ $videos->linkVideo }}">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-ghost-secondary btn-pill" data-bs-dismiss="modal" id="canceleditVideoButton{{ $videos->id_video }}">Cancel</button>
+                                                <button type="submit" class="btn btn-primary btn-pill">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                document.getElementById('canceleditVideoButton{{ $videos->id_video }}').addEventListener('click', function() {
+                                    // Reset form fields
+                                    document.getElementById('editVideoForm{{ $videos->id_video }}').reset();
+
+                                    // If you are using Summernote, you may need to clear its content separately
+                                    $('#editdeskripsiVideo{{ $videos->id_video }}').summernote('reset');
+                                });
+                            </script>
+
+                            <!-- Delete Video modal -->
+                            <div class="modal fade" id="hapusVideoModal{{ $videos->id_video }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="logoutModalLabel">Konfirmasi Hapus</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Apakah Anda yakin ingin menghapus video?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form id="question-form" action="{{ route('ustaz.hapusvideo', $videos->id_video ) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-primary">Yes</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                            <h2>{{ $videos->judulVideo }}</h2>
+                        </div>
+
+                        <div class="card-text" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; height: 4.5em; overflow-y: auto;">
+                            <p>{{ $videos->deskripsiVideo }}</p>
+                        </div>
+                        <a href="{{ $videos->linkVideo }}" target="_blank" class="btn btn-outline-primary rounded-0 float-end">Nonton</a>
+                    </div>
+                </div>
+                @endforeach
+
+                @elseif($user->role === 'murid' || $user->role === 'umum')
+                @foreach($questions_data as $data_questions)
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-4">
+                        <div class="image-container" style="overflow: hidden; max-width: 100%; max-height: 100px;">
+                            @if ($data_questions->gambar)
+                            <img src="data:image/png;base64,{{ $data_questions->gambar }}" class="img-fluid"
+                                style="width: 100%; height: 100px; object-fit: cover;">
+                            @endif
+                        </div>
+
+                    </div>
+                    <div class="col-8">
+                        <div class="text-secondary" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <a>Kategori: {{ $data_questions->kategori }}</a>
+                            </div>
+
+                            @php
+                            // Ambil waktu pembaruan dari $data_questions
+                            $updatedAt = \Carbon\Carbon::parse($data_questions->updated_at);
+
+                            // Dapatkan waktu sekarang
+                            $now = \Carbon\Carbon::now();
+
+                            // Tentukan apakah waktu pembaruan adalah hari ini atau sebelumnya
+                            $isToday = $updatedAt->isToday();
+                            $isYesterday = $updatedAt->isYesterday();
+
+                            // Format output
+                            $output = '';
+
+                            if ($isToday) {
+                            // Tampilkan dalam format relatif
+                            $output = $updatedAt->diffForHumans();
+                            } elseif ($isYesterday) {
+                            // Tampilkan 'yesterday' untuk pembaruan kemarin
+                            $output = 'yesterday';
+                            } else {
+                            // Tampilkan tanggal jika lebih dari 1 hari
+                            $output = $updatedAt->format('d M Y');
+                            }
+                            @endphp
+
+                            <div>
+                                <a>
+                                    @if ($data_questions->created_at != $data_questions->updated_at)
+                                    (edited) {{ $output }}
+                                    @else
+                                    {{ $output }}
+                                    @endif
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card-text" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; height: 4.5em; overflow-y: auto;">
+                            <p>{{ $data_questions->deskripsi }}</p>
+                        </div>
+
+                        <div>
+                            <div class="float-start">
+                                <a class="text-primary" href="{{ route(auth()->user()->role . '.home') }}?focus={{ $data_questions->id_question }}">
+                                    Lihat Post
+                                </a>
+                            </div>
+
+                            <div class="float-end">
+                                <svg role="button" data-bs-toggle="dropdown" xmlns="http://www.w3.org/2000/svg"
+                                    class="mt-2 icon icon-tabler icon-tabler-dots" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                </svg>
+                                <div class="dropdown-menu">
+                                    @if (auth()->check() && $data_questions->user->username === auth()->user()->username)
+                                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editquestionModal{{ $data_questions->id_question }}">
+                                        <svg role="button" xmlns="http://www.w3.org/2000/svg"
+                                            class="icon icon-tabler icon-tabler-edit me-2" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                                            <path d="M16 5l3 3"></path>
+                                        </svg>
+                                        Edit
+                                    </a>
+
+                                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#hapusquestionModal{{ $data_questions->id_question }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="icon icon-tabler icon-tabler-trash me-2" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M4 7l16 0"></path>
+                                            <path d="M10 11l0 6"></path>
+                                            <path d="M14 11l0 6"></path>
+                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                                        </svg>
+                                        Delete</a>
+                                    @endif
+                                    @if (auth()->check() && $data_questions->user->username != auth()->user()->username)
+                                    <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#reportModal{{ $data_questions->id_question }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="me-2 icon icon-tabler icon-tabler-alert-circle" width="24"
+                                            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                                            <path d="M12 8v4"></path>
+                                            <path d="M12 16h.01"></path>
+                                        </svg>
+                                        Report
+                                    </a>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Report Modal -->
+                            <div class="modal fade" id="reportModal{{ $data_questions->id_question }}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form id="reportForm{{ $data_questions->id_question }}" action="{{ route(auth()->user()->role . '.reportQuestion', $data_questions->id_question ) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header">
+                                                <b>Report Post</b>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label" style="color: #000000;">Reason</label>
+                                                    <textarea name="reason" id="reason" class="border rounded-0 form-control summernote" rows="6" placeholder="Write something" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-ghost-secondary btn-pill" data-bs-dismiss="modal" id="ReportcancelButton{{ $data_questions->id_question }}">Cancel</button>
+                                                <button type="submit" class="btn btn-primary btn-pill">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const modalElement = document.getElementById('reportModal{{ $data_questions->id_question }}');
+                                    modalElement.addEventListener('hide.bs.modal', function() {
+                                        // Reset form fields
+                                        document.getElementById('reportForm{{ $data_questions->id_question }}').reset();
+                                    });
+                                });
+                            </script>
+
+
+
+                            <!-- Edit Question Modal -->
+                            <div class="modal fade" id="editquestionModal{{ $data_questions->id_question }}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form id="editquestionsForm{{ $data_questions->id_question }}" action="{{ route(auth()->user()->role . '.editquestion', $data_questions->id_question ) }}" method="POST" enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="modal-header">
+                                                <b>Edit Post</b>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3" style="display: flex">
+                                                    <div class="col-4">
+                                                        <select id="editkategori{{ $data_questions->id_question }}" name="kategori" class="form-control" style="color: #b2b2b3!important;">
+                                                            <option value="" disabled selected>{{ $data_questions->kategori }}</option>
+                                                            <option style="color: black!important;" value="Sholat" {{ $data_questions->kategori == 'Sholat' ? 'disabled' : '' }}>Sholat</option>
+                                                            <option style="color: black!important;" value="Nikah" {{ $data_questions->kategori == 'Nikah' ? 'disabled' : '' }}>Nikah</option>
+                                                            <option style="color: black!important;" value="Puasa" {{ $data_questions->kategori == 'Puasa' ? 'disabled' : '' }}>Puasa</option>
+                                                            <option style="color: black!important;" value="Zakat" {{ $data_questions->kategori == 'Zakat' ? 'disabled' : '' }}>Zakat</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-8" style="display:flex; justify-content: flex-end;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" onclick="document.getElementById('editfileInput{{ $data_questions->id_question }}').click();">
+                                                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                                <path d="M15 8h.01M3 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" />
+                                                                <path d="m3 16l5-5c.928-.893 2.072-.893 3 0l5 5" />
+                                                                <path d="m14 14l1-1c.928-.893 2.072-.893 3 0l3 3" />
+                                                            </g>
+                                                        </svg>
+                                                        <input type="file" id="editfileInput{{ $data_questions->id_question }}" name="image" style="display: none;" accept="image/*">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label" style="color: #000000;">Deskripsi</label>
+                                                    <textarea name="deskripsi" class="border rounded-0 form-control summernote" rows="6" placeholder="{{ $data_questions->deskripsi }}">{{ $data_questions->deskripsi }}</textarea>
+                                                </div>
+                                                <div id="preview{{ $data_questions->id_question }}" style="display: flex; justify-content:center; cursor: pointer;" onclick="document.getElementById('editfileInput{{ $data_questions->id_question }}').click();">
+                                                    <img id="imagePreview{{ $data_questions->id_question }}" src="{{ $data_questions->gambar ? 'data:image/png;base64,' . $data_questions->gambar : asset('img/no-image.png') }}">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-ghost-secondary btn-pill" data-bs-dismiss="modal" id="editcancelButton{{ $data_questions->id_question }}">Cancel</button>
+                                                <button type="submit" class="btn btn-primary btn-pill">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const fileInput = document.getElementById('editfileInput{{ $data_questions->id_question }}');
+                                    const preview = document.getElementById('imagePreview{{ $data_questions->id_question }}');
+                                    const defaultImageSrc = "{{ $data_questions->gambar ? 'data:image/png;base64,' . $data_questions->gambar : asset('img/no-image.png') }}";
+
+                                    fileInput.addEventListener('change', function(event) {
+                                        // console.log('File input changed:', event.target.files);
+
+                                        if (event.target.files && event.target.files[0]) {
+                                            const reader = new FileReader();
+
+                                            reader.onload = function(e) {
+                                                // console.log('FileReader result:', e.target.result);
+
+                                                preview.src = e.target.result;
+                                            };
+
+                                            reader.readAsDataURL(event.target.files[0]);
+                                        }
+                                    });
+
+                                    const modalElement = document.getElementById('editquestionModal{{ $data_questions->id_question }}');
+                                    modalElement.addEventListener('hide.bs.modal', function() {
+                                        // Reset file input
+                                        fileInput.value = '';
+                                        // Reset preview image
+                                        preview.src = defaultImageSrc;
+                                        // Reset form fields
+                                        document.getElementById('editquestionsForm{{ $data_questions->id_question }}').reset();
+                                    });
+                                });
+                            </script>
+
+                            <!-- Delete Question modal -->
+                            <div class="modal fade" id="hapusquestionModal{{ $data_questions->id_question }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="logoutModalLabel">Konfirmasi Hapus</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Apakah Anda yakin ingin menghapus pertanyaan?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form id="question-form" action="{{ route(auth()->user()->role . '.hapusquestion', $data_questions->id_question ) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-primary">Yes</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                @endforeach
+
+                @endif
+
             </div>
             <div class="col-2">
 
@@ -303,7 +719,7 @@
                 <form id="passwordForm" action="{{ route(auth()->user()->role . '.updatePassword') }}" method="POST">
                     @csrf
                     <div class="modal-header">
-                        <b>Edit Password</b>
+                        <b>Edit Password</b>d
                     </div>
                     <div class="modal-body">
                         <!-- Current Password Field -->

@@ -38,6 +38,9 @@ class VideoController extends Controller
 
     public function create(Request $request)
     {
+        // Ambil pengguna yang sedang login
+        $user = Auth::user();
+
         $request->validate([
             'judulVideo' => 'required|string|max:255',
             'deskripsiVideo' => 'required|string',
@@ -56,6 +59,7 @@ class VideoController extends Controller
 
         // Jika semua validasi lolos, simpan video (di sini hanya contoh, implementasi penyimpanan bisa ditambahkan)
         Video::create([
+            'username' => $user->username,
             'judulVideo' => $request->judulVideo,
             'deskripsiVideo' => $request->deskripsiVideo,
             'linkVideo' => $request->linkVideo,

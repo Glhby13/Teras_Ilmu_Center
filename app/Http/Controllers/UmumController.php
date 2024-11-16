@@ -117,6 +117,8 @@ class UmumController extends Controller
         $followers = $user->followings()->count() ?? 0;
         $followings = $user->followers()->count() ?? 0;
 
+        $questions_data = $user->question()->orderBy('created_at', 'desc')->get();
+
         // Kirim data umum ke view
         return view('profile', [
             'user' => $user,
@@ -127,6 +129,7 @@ class UmumController extends Controller
             'answers' => $answers,
             'followers' => $followers,
             'followings' => $followings,
+            'questions_data' => $questions_data,
         ]);
     }
 
@@ -192,12 +195,16 @@ class UmumController extends Controller
         $followers = $user->followings()->count() ?? 0;
         $followings = $user->followers()->count() ?? 0;
 
+        $questions_data = $user->question()->orderBy('created_at', 'desc')->get();
+
+        $video = $user->video()->orderBy('created_at', 'desc')->get();
+
         // Cek apakah data profile ditemukan
         if (!$profile) {
             return redirect()->back()->with('error', 'Data profil tidak ditemukan.');
         }
 
-        //dd($profile);
+        //dd($questions_data);
 
         // Return view dengan data profile
         return view('viewprofile', [
@@ -210,6 +217,8 @@ class UmumController extends Controller
             'answers' => $answers,
             'followers' => $followers,
             'followings' => $followings,
+            'video' => $video,
+            'questions_data' => $questions_data,
         ]);
     }
 

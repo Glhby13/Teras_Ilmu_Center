@@ -41,4 +41,10 @@ class Video extends Model
         'deskripsiVideo',
         'linkVideo',
     ];
+
+    // Relasi dengan tabel users
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'username', 'username');
+    }
 }
